@@ -38,6 +38,10 @@ def clean_phone(phone)
   number[0..9]
 end
 
+def sort_by_occurances(arr)
+  arr.tally.sort_by(&:last).reverse.map(&:first)
+end
+
 puts 'Event Manager Initialized!'
 
 contents = CSV.open(
@@ -60,7 +64,17 @@ contents.each do |row|
   save_thank_you_letter id, form_letter
 end
 
-hours = contents.map { |row| Time.strptime(row[:regdate], '%m/%d/%y %k:%M').hour }
+contents.rewind
+
+date_format = '%m/%d/%y %k:%M'
+hours = contents.map { |row| Time.strptime(row[:regdate], date_format).hour }
 
 puts 'Peak 3 registration hours: '
-puts hours.tally.sort_by(&:last).reverse.map(&:first).take(3)
+puts sort_by_occurances(hours).take(3)
+
+contents.rewind
+
+week_days = contents.map { |row| Time.strptime(row[:regdate], date_format).strftime('%A') }
+
+puts 'Top 3 registration days of the week:'
+puts sort_by_occurances(week_days).take(3)
